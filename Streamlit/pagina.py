@@ -1,19 +1,20 @@
 import streamlit as st
 import pandas as pd
+import numpy as np
 
 st.title("Dashboard de Monitoreo de Covid-19 en Chile")
 
-Nacimientos_URL = "https://raw.githubusercontent.com/MinCiencia/Datos-COVID19/master/input/RegistroCivil/Nacimientos/Nacimientos_2020-01-01_2020-11-04_DO.csv"
+Defunciones_URL = "https://raw.githubusercontent.com/MinCiencia/Datos-COVID19/master/input/RegistroCivil/Nacimientos/Nacimientos_2020-01-01_2020-11-11_DO.csv"
 
-st.subheader("Nacimientos en Chile")
+st.subheader("Defunciones en Chile")
 
 def CargarDatos():
-    datos = pd.read_csv(Nacimientos_URL)
+    datos = pd.read_csv(Defunciones_URL)
     st.write(datos)
-    st.subheader("Grafica de Nacimientos")
+    st.subheader("Grafica de Defunciones")
     st.line_chart(datos)
 
-datos = CargarDatos()
+print(CargarDatos())
 
 st.subheader("Mapa")
-st.map(datos)
+st.map()
