@@ -29,13 +29,15 @@ if paginaseleccionada == 'pagina 1':
     st.title('MONITOREO NACIONAL')
 # agregamos un multi-selecionador con el fin de que al momento de hacer consultas del servidor de mongo se puedan seleccionar varias
 # opciones al mismo tiempo
-    st.multiselect('selecione una opción', ['I región', 'II región', 'III región',
+    Regiones = st.multiselect('selecione una opción', options=['I región', 'II región', 'III región',
          'IV región', 'V región', 'VI región', 'VII región', 'VIII región',
          'IX región','X región', 'XI región', 'XII región', 'XIII región',
          'XIV región','XV región'])
     st.button('mostrar monitoreo')
+    
 # creamos un dataframe para dibujar un mapa
     df = pd.DataFrame(
+        np.random.randn(1000, 2) / [50, 50] + [37.76, -122.4],
 # especificamos es que tipo de forma vamos a trabajar con las direcciones 
         columns=['lat', 'lon'])
 # usando pydeck dibujamos un mapa segun su estilo y version de esta libreria
@@ -72,10 +74,27 @@ if paginaseleccionada == 'pagina 1':
     ))
 
    
-
     
 elif paginaseleccionada == 'pagina 2':
 # le asignamos un nuevo color a esta siguiente pestaña para añadirle mas estilo a esta
     st.markdown('<style> body {background-color: #FFCA33 ;} </style>', unsafe_allow_html = True)
     st.title('MONITOREO COMUNAL')
+    region_1 = ['Arica','Camarones','Putre','General lagos']
+    region_2 = ['Iquique','Alto hospicio','Pozo almonte','Camiña',
+            'Colchane','Huara','Pica']
+    region_3 = ['Antofagasta','Mejillones','Sierra gorda','Taital',
+            'Calama','Ollagüe','San pedro de atacama','Tocopilla','María elena']
+    region_4 = ['Copiapó','Caldera','Tierra amarilla','Chañaral',
+            'Diego de almagro','Vallenar','Alto del carmen','Freirina','Huasco']
+    region_5 = ['La serena','Coquimbo','Andacollo','La higuera','Paihuano','Vicuña',
+            'Illapel','Canela','Los vilos','Salamanca','Ovalle','Combartala',
+            'Monte patria','Punitaqui','Río hurtado']
+    region_6 = ['Valparaiso','Casablanca','Concón','Juan fernández','Puchuncavi',
+            'Quintero','Viña del mar','Isla de pascua','Los andes','Calle larga',
+            'Rinconada','San esteban','La ligua','Cabildo','Papudo','Petorca',
+            'Zapallar','Quillota','La calera','Hijuelas','La cruz','Nogales',
+            'San antonio','Algarrobo','Cartagena','El quisco','El tabo','Santo domingo',
+            'San felipe','Catemu','Llay-Llay','Panquehue','Putaendo','Santa maría',
+            'Quilpue','Limache','Olmue','Villa alemana']
+    
     
