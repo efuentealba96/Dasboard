@@ -117,10 +117,22 @@ elif paginaseleccionada == 'pagina 2':
             'Tirúa','Los ángeles','Antuco','Cabrero','Laja','Mulchén','Nacimiento',
             'Negrete','Quilaco','Quilleco','San rosendo','Santa bárbara','Tucapel',
             'Yumbel','Alto biobio'] 
-    region_11 = ['Temuco','Carahue','Chol Chol','Cunco','Curarrehue','Freire',
+    region_11 = ['Temuco','Carahue','Chol Chol','Cunco','Curarrehue','Freire','Angol',
             'Galvarino','Gorbea','Lautaro','Loncoche','Melipeuco','Nueva Imperial',
             'Padre Las Casas','Perquenco','Pitrufquén','Pucón','Saavedra','Teodoro Schmidt',
-            'Toltén','Vilcún', 'Villarrica']  
-    
+            'Toltén','Vilcún', 'Villarrica','Collipulli','Curacautín','Ercilla','Lonquimay',
+            'Los sauces','Lumaco','Purén','Renaico','Traiguén','Victoria']
+    region_12 = ['Valdivia','Corral','Lanco','Los lagos','Máfil','Mariquina','Paillaco',
+             'Panguipulli','La union','Futrono','Lago ranco','Río bueno']
+    region_13 = ['Puerto montt','Calbuco','Cochamó','Fresia','Frutillar','Los muermos',
+              'Llanquihue','Maullin','puerto varas','Castro','Ancud','Curaco de vélez',
+              'Dalcahue','Puqueldón','Queillen','Quellon','Quemchi','Quinchao','Puerto octay',
+              'Purranque','Peyehue','Río negro','San juan de la costa','San pablo','Chaitén',
+              'Futaleufu','Hualaihue','Palena']
+    region_14 = ['Coyaique','Lago verde','Aysén','Cisnes','Guatitecas','COnchrane',
+             "O'higgins",'Tortel','Chile chico','Río ibáñez']
+    region_15 = ['Punta arenas','Laguna blanca','Río verde','San gregorio','Cabo de hornos',
+             'Artartica','Porvenir','Primavera','Timaukel','Natales','Torres del paine']
+
     
     
