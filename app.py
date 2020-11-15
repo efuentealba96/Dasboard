@@ -96,5 +96,31 @@ elif paginaseleccionada == 'pagina 2':
             'San antonio','Algarrobo','Cartagena','El quisco','El tabo','Santo domingo',
             'San felipe','Catemu','Llay-Llay','Panquehue','Putaendo','Santa maría',
             'Quilpue','Limache','Olmue','Villa alemana']
+    region_7 = ['Rancagua','Cogua','Coinco','Coltauco','Doñihue','Graneros',
+            'Las cabras','Machali','Malloa','Mostazal','Olivar','Peumo','Pichidegua',
+            'Quinta tilcoco','Rengo','Requinoa','San vicente','Pichilemu','La estrella',
+            'Litueche','Marchihue','Navidad','Paredones','San fernando','Chépica',
+            'Chimbarongo','Lolol','Nancagua','Palmilla','Peralillo','Plascilla','pumanque',
+            'Santa cruz']
+    region_8 = ['Talca','Constitución','Curepto','EMpedrado','Maule','Pelarco','Pencahue',
+            'Rio claro','San clemente','San rafael','Cauquenes','Chanco','Pelluhue',
+            'Curicó','Hualañé','Licanten','Molina','Rauco','Romeral','Sagrada familia',
+            'Teno','Vichuquén','Linares','Colbún','Longavi','Parral','Retiro','San javier',
+            'Villa alegre','Yerbas buenas']
+    region_9 = ['Chillán','Buines','Chillán viejo','El carmen','Pemuco','Pinto','Quillon',
+            'San ignacio','Yungay','Quirihue','Cobquecura','Coelemu','Ninhue','Portezuelo',
+            'Ránquil','Treguaco','San carlos','Colihueco','Ñinquén','San fabián',
+            'San nicolás']
+    region_10 = ['Concepción','Coronel','chiguayante','Florida','Hualqui',
+            'Lota','Penco','San pedro de la paz','Santa juana','Talcahuano','Tomé',
+            'Hualpen','Lebu','Arauco','Cañete','Contulmo','Curanilahue','Los alamos',
+            'Tirúa','Los ángeles','Antuco','Cabrero','Laja','Mulchén','Nacimiento',
+            'Negrete','Quilaco','Quilleco','San rosendo','Santa bárbara','Tucapel',
+            'Yumbel','Alto biobio'] 
+    region_11 = ['Temuco','Carahue','Chol Chol','Cunco','Curarrehue','Freire',
+            'Galvarino','Gorbea','Lautaro','Loncoche','Melipeuco','Nueva Imperial',
+            'Padre Las Casas','Perquenco','Pitrufquén','Pucón','Saavedra','Teodoro Schmidt',
+            'Toltén','Vilcún', 'Villarrica']  
+    
     
     
