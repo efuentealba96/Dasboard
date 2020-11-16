@@ -10,6 +10,12 @@ image = Image.open('head.jpg')
 
 # la función markdown se utiliza para ocupar funcionalidades de html y css en streamlit
 st.markdown('<style> body {background-color: #449A04;}', unsafe_allow_html = True)
+st.markdown("""
+<style>.sidebar .sidebar-content { 
+        background-image: linear-gradient(#070C33, #070C33);
+        color: white;
+    }
+</style>""",unsafe_allow_html=True,)
 # colores para elegir de fondo de la pagina
 #33FF8B
 #FFCA33
@@ -31,48 +37,52 @@ try:
                                   'IV región', 'V región', 'VI región', 'VII región', 'VIII región',
                                   'IX región','X región', 'XI región', 'XII región', 'XIII región',
                                   'XIV región','XV región'])
+        I_lati = -18.4833
+        I_longi = -70.3333
+        
         st.button('mostrar monitoreo')
-   
+        def mapa(lat,lon):
         # creamos un dataframe para dibujar un mapa
-        df = pd.DataFrame(
-            np.random.randn(1000, 2) / [50, 50] + [37.76, -122.4],
+            df = pd.DataFrame(
+                np.random.randn(1000, 2) / [50, 50] + [37.76, -122.4],
             # especificamos es que tipo de forma vamos a trabajar con las direcciones 
-            columns=['lat', 'lon'])
+                columns=['lat', 'lon'])
             # usando pydeck dibujamos un mapa segun su estilo y version de esta libreria
         
-        st.pydeck_chart(pdk.Deck(
-            map_style='mapbox://styles/mapbox/light-v9',
+            st.pydeck_chart(pdk.Deck(
+                map_style='mapbox://styles/mapbox/light-v9',
             # inicializamos la la zona del mapa que queremos ver 
             # todo esto en base a latitud y longitud
-            initial_view_state=pdk.ViewState(
-                latitude=-30.0000000,
-                longitude=-71.0000000,
-                zoom=5,
+                initial_view_state=pdk.ViewState(
+                    latitude=lat,
+                    longitude=lon,
+                    zoom=8,
                 # indicamos la altura desde la que visualizara el usuario
-                pitch=80,),
+                    pitch=80,),
 
                 # por debajo del mapa se trabaja con una matriz por ende mediante layer
                 # especificamos la seccion de la matriz que se visualizara en el mapa
-                layers=[
-                    pdk.Layer(
+                    layers=[
+                        pdk.Layer(
                     # formato de datos obtenidos de la matriz
-                    'HexagonLayer',
-                    data=df,get_position='[lon, lat]',
-                    radius=200,elevation_scale=8,elevation_range=[0, 10000],
-                    pickable=True,extruded=True,
-                    ),
-                    pdk.Layer('ScatterplotLayer', data=df, get_position='[lon, lat]', 
-                    get_color='[180, 0, 200, 140]',
-                    get_radius=200,),
-                    ],
-            ))
+                        'HexagonLayer',
+                        data=df,get_position='[lon, lat]',
+                        radius=200,elevation_scale=8,elevation_range=[0, 10000],
+                        pickable=True,extruded=True,
+                        ),
+                        pdk.Layer('ScatterplotLayer', data=df, get_position='[lon, lat]', 
+                        get_color='[180, 0, 200, 140]',
+                        get_radius=200,),
+                        ],
+                ))
+        mapa(lati,longi)    
             
     elif paginaseleccionada == 'pagina 2':
         # le asignamos un nuevo color a esta siguiente pestaña para añadirle mas estilo a esta
         st.markdown('<style> body {background-color: #DE7D09;} </style>', unsafe_allow_html = True)
         st.title('MONITOREO COMUNAL')
-        
-        columna1, columna2, columna3 = st.beta_columns(3)
+
+        columna1, columna2, columna3  = st.beta_columns(3)
 
         with columna1:
             st.write(pd.DataFrame({
