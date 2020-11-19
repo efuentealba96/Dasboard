@@ -135,6 +135,7 @@ try:
         st.markdown('<style> body {background-color: #DE7D09;} </style>', unsafe_allow_html = True)
         st.title('MONITOREO COMUNAL')
         ocultar = st.sidebar.checkbox('Alternar información')
+        mostrar = st.sidebar.checkbox('Mostar grafico de barras')
         def get_data():
             colecion = db['Defunciones']
             df = pd.DataFrame(list(colecion.find()))
