@@ -2,7 +2,7 @@ from pymongo import MongoClient
 import pandas as pd 
 import streamlit as st
 import datetime
-import plotly.express as px 
+import plotly.express as px     
 import plotly.graph_objects as gr
 
 
@@ -41,16 +41,21 @@ def grafica_defunciones(df,regiones):
 def get_CComunas():
     colecion = db['C_Comunas']
     df = pd.DataFrame(list(colecion.find()))
+    df['Casos x 1000'] = 1000*df['Casos confirmados']/df['Poblacion']
     del df['_id']
     del df['Codigo region']
     del df['Codigo comuna']
     return df
 
-def grafica_CComunas(df,comunas):
+def grafica_CComunas(df,comunas,marca):
     fig = gr.Figure()
     for i, comuna in enumerate(comunas):
         aux = df[df['Comuna']==comuna]
-        fig.add_trace(gr.Bar(x = aux["Semana Epidemiologica"],y = aux["Casos confirmados"],name = comuna,marker_color=px.colors.qualitative.G10[i]))
+        if marca:
+            y = aux['Casos x 1000']
+        else:
+            y = aux["Casos confirmados"]
+        fig.add_trace(gr.Bar(x = aux["Semana Epidemiologica"],y = y,name = comuna,marker_color=px.colors.qualitative.G10[i]))
     fig.update_layout(
         title = "Casos por semana de epidemia",
         xaxis_title="Semana epidemiológica",
@@ -58,7 +63,7 @@ def grafica_CComunas(df,comunas):
         template='ggplot2',
         height=550
     )
-    return fig 
+    return fig
 
 Options = st.sidebar.radio("Barra de Navegacion",['Defuciones segun el registro civil','Casos Por Comuna'])
 if Options == 'Defuciones segun el registro civil':
@@ -70,11 +75,12 @@ if Options == 'Defuciones segun el registro civil':
     fig = grafica_defunciones(df, reg)
     st.plotly_chart(fig, use_container_width=True) 
 if Options == 'Casos Por Comuna':
+    op = st.sidebar.checkbox('Numero de casos por cada 1000 habitantes',value=False)
     df = get_CComunas()
     if st.checkbox("Listado de datos"):
         st.dataframe(df)
     st.header("Grafico de casos por region")
     comunas = list(set(df["Comuna"]))
     com = st.multiselect("Selecionar comunas",comunas,['Talcahuano','La Serena'])
-    fig = grafica_CComunas(df,com)
+    fig = grafica_CComunas(df,com,op)
     st.plotly_chart(fig,use_container_width=True)
