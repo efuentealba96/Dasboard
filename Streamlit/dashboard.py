@@ -1,9 +1,16 @@
 # importamos librerias necesarias 
 import streamlit as st
+from pymongo import MongoClient as mc
 from PIL import Image
 import pandas as pd
-import numpy as np 
+import numpy as np
+import datetime
 import pydeck as pdk
+import plotly.express as px 
+import plotly.graph_objects as gr
+
+cliente = mc("mongodb+srv://Vince_Benassi:Magnificence12@cluster0.r0w6h.mongodb.net/Proyecto?retryWrites=true&w=majority")
+db = cliente['Proyecto']
 
 # abrimos la imagen
 image = Image.open('/home/franco-os/Imágenes/head.jpg')
@@ -121,138 +128,80 @@ try:
             ))
         mapa(I_lati, I_longi)
             
+    
     elif paginaseleccionada == 'pagina 2':
         # le asignamos un nuevo color a esta siguiente pestaña para añadirle mas estilo a esta
         st.markdown('<style> body {background-color: #DE7D09;} </style>', unsafe_allow_html = True)
         st.title('MONITOREO COMUNAL')
-        columna1, columna2, columna3, columna4 = st.beta_columns(4)
+        ocultar = st.sidebar.checkbox('Alternar información')
 
-        with columna1:
-            st.write(pd.DataFrame({
-                "1ra_Región": ['Iquique','Alto hospicio','Pozo almonte','Camiña',
-                               'Colchane','Huara','Pica']
-            }))      
-        
-        with columna2:
-            st.write(pd.DataFrame({
-                "2da_Región": ['Antofagasta','Mejillones','Sierra gorda','Taital',
-                               'Calama','Ollagüe','San pedro de atacama','Tocopilla','María elena']
-            }))
+        def get_defunciones():
+            coleccion = db['Defunciones']
+            df = pd.DataFrame(list(coleccion.find()))
+            df["Año"] = [df['Fecha'][i].split("-")[0] for i in range(df.shape[0])]
+            df["Mes"] = [df['Fecha'][i].split("-")[1] for i in range(df.shape[0])]
+            df["Dia"] = [df['Fecha'][i].split("-")[2] for i in range(df.shape[0])] 
+            df = df[[int(df['Año'][i])>=2020 for i in range(df.shape[0])]].reset_index(drop=True)   
+            data = df.groupby(['Año','Mes','Region','Comuna'], as_index=False).sum()
+            del data['Codigo region']
+            del data['Codigo comuna']
+            return data
 
-        with columna3:
-            st.write(pd.DataFrame({
-                "3ra_Región": ['Copiapó','Caldera','Tierra amarilla','Chañaral',
-                               'Diego de almagro','Vallenar','Alto del carmen','Freirina','Huasco']
-            }))
 
-        with columna4:
-            st.write(pd.DataFrame({
-                "4ta_Región": ['La serena','Coquimbo','Andacollo','La higuera','Paihuano','Vicuña',
-                               'Illapel','Canela','Los vilos','Salamanca','Ovalle','Combartala',
-                               'Monte patria','Punitaqui','Río hurtado']
-            }))
+        def grafica_defunciones(df,regiones):
+            fig = gr.Figure()
+            for i,region in enumerate(regiones):
+                aux  = df[df['Region']==region]
+                fig.add_trace(gr.Bar(x=aux['Mes'],y=aux['Defunciones'],name=region,marker_color=px.colors.qualitative.G10[i]))
+            fig.update_layout(
+                barmode = 'group',
+                title = 'Defunciones por región',
+                xaxis_title = "Meses",
+                height = 500,
+                width = 2000
+                )
+            return fig
+            
+        def get_CComunas():
+            coleccion = db['C_Comunas']
+            df = pd.DataFrame(list(coleccion.find()))
+            del df['_id']
+            del df['Codigo region']
+            del df['Codigo comuna']
+            return df
 
-        with columna1:
-            st.write(pd.DataFrame({
-                "5ta_Región": ['Valparaiso','Casablanca','Concón','Juan fernández','Puchuncavi',
-                               'Quintero','Viña del mar','Isla de pascua','Los andes','Calle larga',
-                               'Rinconada','San esteban','La ligua','Cabildo','Papudo','Petorca',
-                               'Zapallar','Quillota','La calera','Hijuelas','La cruz','Nogales',
-                               'San antonio','Algarrobo','Cartagena','El quisco','El tabo','Santo domingo',
-                               'San felipe','Catemu','Llay-Llay','Panquehue','Putaendo','Santa maría',
-                               'Quilpue','Limache','Olmue','Villa alemana']
-        }))
+        def grafica_CComunas(df,comunas):
+            fig = gr.Figure()
+            for i, comuna in enumerate(comunas):
+                aux = df[df['Comuna']==comuna]
+                fig.add_trace(gr.Bar(x = aux["Semana Epidemiologica"],y = aux["Casos confirmados"],name = comuna,marker_color=px.colors.qualitative.G10[i]))
+            fig.update_layout(
+                title = "Casos por semana de epidemia",
+                xaxis_title="Semana epidemiológica",
+                yaxis_title="Número de casos",
+                template='ggplot2',
+                height=550
+                )
+            return fig 
 
-        with columna2:
-            st.write(pd.DataFrame({
-                "6ta_Región": ['Rancagua','Cogua','Coinco','Coltauco','Doñihue','Graneros',
-                               'Las cabras','Machali','Malloa','Mostazal','Olivar','Peumo','Pichidegua',
-                               'Quinta tilcoco','Rengo','Requinoa','San vicente','Pichilemu','La estrella',
-                               'Litueche','Marchihue','Navidad','Paredones','San fernando','Chépica',
-                               'Chimbarongo','Lolol','Nancagua','Palmilla','Peralillo','Plascilla','pumanque',
-                               'Santa cruz']
-        }))
+        Options = st.sidebar.radio("Barra de Navegacion",['Defuciones segun el registro civil','Casos Por Comuna'])
+        if Options == 'Defuciones segun el registro civil':
+            df = get_defunciones()
+            st.dataframe(df)
+            st.header('Gráfico por regiones')
+            regiones = list(set(df['Region']))
+            reg = st.multiselect('Seleccionar regiones',regiones,['La Araucanía','Tarapacá'])
+            fig = grafica_defunciones(df, reg)
+            st.plotly_chart(fig, use_container_width=True) 
+        if Options == 'Casos Por Comuna':
+            df = get_CComunas()
+            if st.checkbox("Listado de datos"):
+                st.dataframe(df)
+            st.header("Grafico de casos por region")
+            comunas = list(set(df["Comuna"]))
+            com = st.multiselect("Seleccionar comunas",comunas,['Talcahuano','La Serena'])
+            fig = grafica_CComunas(df,com)
+            st.plotly_chart(fig,use_container_width=True)
 
-        with columna3:
-            st.write(pd.DataFrame({
-                "7ma_Región": ['Talca','Constitución','Curepto','EMpedrado','Maule','Pelarco','Pencahue',
-                               'Rio claro','San clemente','San rafael','Cauquenes','Chanco','Pelluhue',
-                               'Curicó','Hualañé','Licanten','Molina','Rauco','Romeral','Sagrada familia',
-                               'Teno','Vichuquén','Linares','Colbún','Longavi','Parral','Retiro','San javier',
-                               'Villa alegre','Yerbas buenas']
-        }))
-
-        with columna4:
-            st.write(pd.DataFrame({
-                "8va_Región": ['Concepción','Coronel','chiguayante','Florida','Hualqui',
-                               'Lota','Penco','San pedro de la paz','Santa juana','Talcahuano','Tomé',
-                               'Hualpen','Lebu','Arauco','Cañete','Contulmo','Curanilahue','Los alamos',
-                               'Tirúa','Los ángeles','Antuco','Cabrero','Laja','Mulchén','Nacimiento',
-                               'Negrete','Quilaco','Quilleco','San rosendo','Santa bárbara','Tucapel',
-                               'Yumbel','Alto biobio']
-        }))
-
-        with columna1:
-            st.write(pd.DataFrame({
-                "9na_Región": ['Temuco','Carahue','Chol Chol','Cunco','Curarrehue','Freire',
-                               'Galvarino','Gorbea','Lautaro','Loncoche','Melipeuco','Nueva Imperial',
-                               'Padre Las Casas','Perquenco','Pitrufquén','Pucón','Saavedra','Teodoro Schmidt',
-                               'Toltén','Vilcún', 'Villarrica']
-        }))
-
-        with columna2:
-            st.write(pd.DataFrame({
-                "10ma_Región":  ['Puerto montt','Calbuco','Cochamó','Fresia','Frutillar','Los muermos',
-                                 'Llanquihue','Maullin','puerto varas','Castro','Ancud','Curaco de vélez',
-                                 'Dalcahue','Puqueldón','Queillen','Quellon','Quemchi','Quinchao','Puerto octay',
-                                 'Purranque','Peyehue','Río negro','San juan de la costa','San pablo','Chaitén',
-                                 'Futaleufu','Hualaihue','Palena']
-        }))
-
-        with columna3:
-            st.write(pd.DataFrame({
-                "11ma_Región": ['Coyaique','Lago verde','Aysén','Cisnes','Guatitecas','COnchrane',
-                                "O'higgins",'Tortel','Chile chico','Río ibáñez']
-        }))
-
-        with columna4:
-            st.write(pd.DataFrame({
-                "12ma_Región": ['Punta arenas','Laguna blanca','Río verde','San gregorio','Cabo de hornos',
-                                'Artartica','Porvenir','Primavera','Timaukel','Natales','Torres del paine']
-        }))
-
-        with columna1:
-            st.write(pd.DataFrame({
-                "Región_Metropolitana": ['Colina', 'Lampa','Til-Til', 'Puente Alto', 'Pirque', 'San José de Maipo', 
-                                         'San Bernardo', 'Buin', 'Calera de Tango', 'Paine', 'Melipilla', 'Alhué', 
-                                         'Curacaví', 'María Pinto', 'San Pedro', 'Santiago', 'Cerrillos', 
-                                         'Cerro Navia', 'Conchalí', 'El Bosque', 'Estación Central', 'Huechuraba', 
-                                         'Independencia', 'La Cisterna', 'La Florida', 'La Granja', 'La Pintana', 
-                                         'La Reina', 'Las Condes', 'Lo Barnechea', 'Lo Espejo', 'Lo Prado', 'Macul', 
-                                         'Maipú', 'Ñuñoa', 'Pedro Aguirre Cerda', 'Peñalolen', 'Providencia', 
-                                         'Pudahuel', 'Quilicura', 'Quinta Normal', 'Recoleta', 'Renca', 'San Joaquín', 
-                                         'San Miguel', 'San Ramón', 'Vitacura', 'Talagante', 'El Monte', 'Isla de Maipo', 
-                                         'Padre Hurtado', 'Peñaflor']
-        }))
-
-        with columna2:
-            st.write(pd.DataFrame({
-                "14ta_Región": ['Valdivia','Corral','Lanco','Los lagos','Máfil','Mariquina','Paillaco',
-                                'Panguipulli','La union','Futrono','Lago ranco','Río bueno']
-        }))
-
-        with columna3:
-            st.write(pd.DataFrame({
-                "15ta_Región": ['Arica','Camarones','Parinacota','Putre','General lagos']
-        }))
-
-        with columna4:
-            st.write(pd.DataFrame({
-                "16ta_Región": ['Chillán','Buines','Chillán viejo','El carmen','Pemuco','Pinto','Quillon',
-                                'San ignacio','Yungay','Quirihue','Cobquecura','Coelemu','Ninhue','Portezuelo',
-                                'Ránquil','Treguaco','San carlos','Colihueco','Ñinquén','San fabián',
-                                'San nicolás']
-        }))
-    
 except:
     st.warning('Realizó una cambio erróneo, pruebe nuevamente')
