@@ -128,7 +128,7 @@ try:
                         get_radius=200,),
                         ],
                 ))        
-            
+        mapa(II_lati,II_longi)    
             
     elif paginaseleccionada == 'pagina 2':
         # le asignamos un nuevo color a esta siguiente pestaña para añadirle mas estilo a esta
@@ -148,9 +148,12 @@ try:
             del data['Codigo comuna']
             return data
         df = get_data()
-        st.dataframe(df)
         
-        
+        if ocultar:
+            st.dataframe(df)
+        else:
+            st.warning('Seleccione una opcion en la barra lateral')    
+               
         
            
 except:
