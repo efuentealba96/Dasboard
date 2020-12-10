@@ -1,3 +1,4 @@
+# Importamos las librerias con las que trabajaremos
 from pymongo import MongoClient
 import pandas as pd 
 import streamlit as st
@@ -6,11 +7,13 @@ import plotly.express as px
 import plotly.graph_objects as gr
 
 
+# Creamos la conexion del cliente a la BD
 cliente = MongoClient("mongodb+srv://Eliacer:elia968@cluster0.r0w6h.mongodb.net/Proyecto?retryWrites=true&w=majority")
-
 db = cliente['Proyecto']
 
 
+# Creamos una funcion para obtener las defunciones por Covid-19 en todo el país
+# Agrupamos datos por año, mes y día
 def get_defunciones():
     colecion = db['Defunciones']
     df = pd.DataFrame(list(colecion.find()))
@@ -23,6 +26,8 @@ def get_defunciones():
     del data['Codigo comuna']
     return data
 
+
+# Creamos una funcion para que grafique las defunciones y las muestre en la página de streamlit
 @st.cache
 def grafica_defunciones(df,regiones):
     fig = gr.Figure()
@@ -38,6 +43,8 @@ def grafica_defunciones(df,regiones):
     )
     return fig
 
+
+# Creamos una funcion para obtener las comunas del país por 1000 habitantes
 def get_CComunas():
     colecion = db['C_Comunas']
     df = pd.DataFrame(list(colecion.find()))
@@ -47,11 +54,15 @@ def get_CComunas():
     del df['Codigo comuna']
     return df
 
+
+# Obtenemos a los confirmados casos por comuna de covid-19
 def get_icovid_C():
     colecion = db['icovid_C']
     df = pd.DataFrame(list(colecion.find()))
     return df
 
+
+# Graficamos los datos obtenidos de casos confirmados de covid-19 por comuna
 @st.cache
 def grafica_icociv_C(df,comunas):
     fig = gr.Figure()
@@ -75,11 +86,15 @@ def grafica_icociv_C(df,comunas):
     )
     return fig
 
+
+# Obtenemos a los confirmados casos por region de covid-19
 def get_icovid_R():
     colecion = db['icovid_R']
     df = pd.DataFrame(list(colecion.find()))
     return df
 
+
+# Graficamos los datos obtenidos de casos confirmados de covid-19 por region
 @st.cache
 def grafica_icociv_R(df,regiones):
     fig = gr.Figure()
@@ -104,6 +119,7 @@ def grafica_icociv_R(df,regiones):
     return fig 
 
 
+# Graficamos los casos por comunas de acuerdo a casos confirmados y casos por cada 1000 habitantes
 @st.cache
 def grafica_CComunas(df,comunas,marca):
     fig = gr.Figure()
@@ -123,7 +139,12 @@ def grafica_CComunas(df,comunas,marca):
     )
     return fig
 
+
+# Creamos una barra de navegacion para seleccionar las opciones que tiene nuestro dashboard
 Options = st.sidebar.radio("Barra de Navegacion",['Defuciones segun el registro civil','Casos Por Comuna','Datos de icovid'])
+
+# Si ingresa a defunciones se mostrará un grafico de barras con las defunciones por region
+# y opciones para cambiar de region y realizar mas comparaciones
 if Options == 'Defuciones segun el registro civil':
     df = get_defunciones()
     st.dataframe(df)
@@ -133,6 +154,9 @@ if Options == 'Defuciones segun el registro civil':
     fig = grafica_defunciones(df, reg)
     st.plotly_chart(fig, use_container_width=True) 
 
+    
+# Si ingresa a casos por comuna se mostrará un grafico de barras con el n° de casos cada 1000 habitantes
+# y opciones para cambiar de comuna y realizar mas comparaciones   
 if Options == 'Casos Por Comuna':
     op = st.sidebar.checkbox('Numero de casos por cada 1000 habitantes',value=False)
     df = get_CComunas()
@@ -144,6 +168,9 @@ if Options == 'Casos Por Comuna':
     fig = grafica_CComunas(df,com,op)
     st.plotly_chart(fig,use_container_width=True)
 
+
+# Si ingresa a datos de icovid se mostrará un grafico de barras con las regiones y comunas
+# del pais con opciones para visualizar algunos datos
 if Options == 'Datos de icovid':
     opcion = st.selectbox("Elija que datos desea visualizar",("Datos por comuna","Datos por región"))
     if opcion == "Datos por comuna":
