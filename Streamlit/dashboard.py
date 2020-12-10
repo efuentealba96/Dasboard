@@ -39,8 +39,8 @@ try:
         # opciones al mismo tiempo
         Regiones = st.multiselect('selecione una opción', options=['I región', 'II región', 'III región',
                                   'IV región', 'V región', 'VI región', 'VII región', 'VIII región',
-                                  'IX región','X región', 'XI región', 'XII región', 'XIII región',
-                                  'XIV región','XV región'])   
+                                  'IX región','X región', 'XI región', 'XII región', 'región metropolitana',
+                                  'XIV región','XV región', 'XVI región'])   
         I_lati = -20.2167
         I_longi = -70.15
 
@@ -106,7 +106,7 @@ try:
                 initial_view_state=pdk.ViewState(
                     latitude= lat,
                     longitude= lon,
-                    zoom= 8,
+                    zoom= 5,
                     # indicamos la altura desde la que visualizara el usuario
                     pitch=80,),
 
@@ -131,7 +131,7 @@ try:
     
     elif paginaseleccionada == 'pagina 2':
         # le asignamos un nuevo color a esta siguiente pestaña para añadirle mas estilo a esta
-        st.markdown('<style> body {background-color: #DE7D09;} </style>', unsafe_allow_html = True)
+        st.markdown('<style> body {background-color: #006600;} </style>', unsafe_allow_html = True)
         st.title('MONITOREO COMUNAL')
         ocultar = st.sidebar.checkbox('Alternar información')
 
@@ -148,59 +148,150 @@ try:
             return data
 
 
+        @st.cache
         def grafica_defunciones(df,regiones):
             fig = gr.Figure()
             for i,region in enumerate(regiones):
                 aux  = df[df['Region']==region]
                 fig.add_trace(gr.Bar(x=aux['Mes'],y=aux['Defunciones'],name=region,marker_color=px.colors.qualitative.G10[i]))
-            fig.update_layout(
-                barmode = 'group',
-                title = 'Defunciones por región',
-                xaxis_title = "Meses",
-                height = 500,
-                width = 2000
+                fig.update_layout(
+                    barmode = 'group',
+                    title = 'Defunciones por región',
+                    xaxis_title = "Meses",
+                    height = 500,
+                    width = 2000
                 )
             return fig
+
             
         def get_CComunas():
-            coleccion = db['C_Comunas']
-            df = pd.DataFrame(list(coleccion.find()))
+            colecion = db['C_Comunas']
+            df = pd.DataFrame(list(colecion.find()))
+            df['Casos x 1000'] = 1000*df['Casos confirmados']/df['Poblacion']
             del df['_id']
             del df['Codigo region']
             del df['Codigo comuna']
             return df
 
-        def grafica_CComunas(df,comunas):
+            
+        def get_icovid_C():
+            colecion = db['icovid_C']
+            df = pd.DataFrame(list(colecion.find()))
+            return df
+
+                
+        @st.cache
+        def grafica_icociv_C(df,comunas):
+            fig = gr.Figure()
+            for i,comuna in enumerate(comunas):
+                aux = df[df['Comuna']==comuna]
+                aux = aux.sort_values(by=['fecha']).reset_index(drop = True)
+                y = aux['positividad']
+                fig.add_trace(gr.Scatter(
+                    x = aux['fecha'],
+                    y = 100*y,
+                    name = str(comuna),
+                    mode = 'lines',
+                    marker_color =(px.colors.qualitative.D3+px.colors.qualitative.Safe)[i]
+                    ))
+            fig.update_layout(
+                title = "Positividad de examenes PCR por comuna",
+                xaxis_title = "Fecha",
+                yaxis_title = "Porcentaje de positividad",
+                template = "ggplot2",
+                height = 550
+            )
+            return fig
+
+                
+        def get_icovid_R():
+            colecion = db['icovid_R']
+            df = pd.DataFrame(list(colecion.find()))
+            return df
+
+                
+        @st.cache
+        def grafica_icociv_R(df,regiones):
+            fig = gr.Figure()
+            for i,region in enumerate(regiones):
+                aux = df[df['Region']==region]
+                aux = aux.sort_values(by=['fecha']).reset_index(drop = True)
+                y = aux['positividad']
+                fig.add_trace(gr.Scatter(
+                    x = aux['fecha'],
+                    y = 100*y,
+                    name = str(region),
+                    mode = 'lines',
+                    marker_color =(px.colors.qualitative.D3+px.colors.qualitative.Safe)[i]
+                ))
+            fig.update_layout(
+                title = "Positividad de examenes PCR por región",
+                xaxis_title = "Fecha",
+                yaxis_title = "Porcentaje de positividad",
+                template = "ggplot2",
+                height = 550
+            )
+            return fig 
+
+            
+        @st.cache
+        def grafica_CComunas(df,comunas,marca):
             fig = gr.Figure()
             for i, comuna in enumerate(comunas):
                 aux = df[df['Comuna']==comuna]
-                fig.add_trace(gr.Bar(x = aux["Semana Epidemiologica"],y = aux["Casos confirmados"],name = comuna,marker_color=px.colors.qualitative.G10[i]))
+                if marca:
+                    y = aux['Casos x 1000']
+                else:
+                    y = aux["Casos confirmados"]
+                fig.add_trace(gr.Bar(x = aux["Semana Epidemiologica"],y = y,name = comuna,marker_color=px.colors.qualitative.G10[i]))
             fig.update_layout(
                 title = "Casos por semana de epidemia",
                 xaxis_title="Semana epidemiológica",
                 yaxis_title="Número de casos",
                 template='ggplot2',
                 height=550
-                )
-            return fig 
+            )
+            return fig
 
-        Options = st.sidebar.radio("Barra de Navegacion",['Defuciones segun el registro civil','Casos Por Comuna'])
+            
+        Options = st.sidebar.radio("Barra de Navegacion",['Defuciones segun el registro civil','Casos Por Comuna','Datos de icovid'])
         if Options == 'Defuciones segun el registro civil':
             df = get_defunciones()
             st.dataframe(df)
             st.header('Gráfico por regiones')
             regiones = list(set(df['Region']))
-            reg = st.multiselect('Seleccionar regiones',regiones,['La Araucanía','Tarapacá'])
+            reg = st.multiselect('Seleccionar regiones',regiones,['La Araucanía'])
             fig = grafica_defunciones(df, reg)
-            st.plotly_chart(fig, use_container_width=True) 
+            st.plotly_chart(fig, use_container_width=True)
+
+            
         if Options == 'Casos Por Comuna':
+            op = st.sidebar.checkbox('Numero de casos por cada 1000 habitantes',value=False)
             df = get_CComunas()
             if st.checkbox("Listado de datos"):
                 st.dataframe(df)
             st.header("Grafico de casos por region")
             comunas = list(set(df["Comuna"]))
-            com = st.multiselect("Seleccionar comunas",comunas,['Talcahuano','La Serena'])
-            fig = grafica_CComunas(df,com)
+            com = st.multiselect("Selecionar comunas",comunas,['Talcahuano','La Serena'])
+            fig = grafica_CComunas(df,com,op)
+            st.plotly_chart(fig,use_container_width=True)
+
+                
+        if Options == 'Datos de icovid':
+            opcion = st.selectbox("Elija que datos desea visualizar",("Datos por comuna","Datos por región"))
+            if opcion == "Datos por comuna":
+                df = get_icovid_C()
+                comunas = list(set(df["Comuna"]))
+                selected = st.multiselect("Selecionar comunas",comunas,["Temuco","Curacautín"])
+                fig = grafica_icociv_C(df,selected)
+                st.plotly_chart(fig,use_container_width=True)
+
+                
+        if opcion == "Datos por región":
+            df = get_icovid_R()
+            region = list(set(df["Region"]))
+            selected = st.multiselect("Seleccionar region",region,['Tarapacá'])
+            fig = grafica_icociv_R(df,selected)
             st.plotly_chart(fig,use_container_width=True)
 
 except:
