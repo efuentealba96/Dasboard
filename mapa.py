@@ -9,7 +9,7 @@ st.markdown('<style> body {background-color: #449A04;}', unsafe_allow_html = Tru
 st.title('MONITOREO NACIONAL')
 # agregamos un multi-selecionador con el fin de que al momento de hacer consultas del servidor de mongo se puedan seleccionar varias
 # opciones al mismo tiempo
-Regiones = st.multiselect('selecione una opción', options=['I región', 'II región', 'III región',
+Regiones = st.selectbox('selecione una opción', options=['I región', 'II región', 'III región',
                                   'IV región', 'V región', 'VI región', 'VII región', 'VIII región',
                                   'IX región','X región', 'XI región', 'XII región', 'XIII región',
                                   'XIV región','XV región'])
@@ -89,13 +89,21 @@ def mapa(lat,lon):
                 pdk.Layer(
             # formato de datos obtenidos de la matriz
                 'HexagonLayer',
-                data=df,get_position='[lon, lat]',
-                radius=200,elevation_scale=8,elevation_range=[0, 10000],
-                pickable=True,extruded=True,
+                data=df,
+                get_position='[lon, lat]',
+                radius=200,
+                elevation_scale=8,
+                elevation_range=[0, 10000],
+                pickable=True,
+                extruded=True,
                 ),
-                pdk.Layer('ScatterplotLayer', data=df, get_position='[lon, lat]', 
+                pdk.Layer('ScatterplotLayer', 
+                data=df, 
+                get_position='[lon, lat]', 
                 get_color='[180, 0, 200, 140]',
                 get_radius=200,),
                 ],
-        ))        
+        ))
+
+
 mapa(II_lati,II_longi)    
