@@ -3,13 +3,13 @@ Dashboard Covid-19
 
 
 Integrantes:
-  jefe(a) de proyecto: Constanza Rivas
+  Jefe(a) de proyecto: Constanza Rivas
   
   Jefe de grupo: Eliacer Fuentealba
   
-  integrante: Franco Benassi
+  Integrante: Franco Benassi
   
-  integrante: Javier Garnica
+  Integrante: Javier Garnica
   
-  integrantes: Josué Rivas
+  Integrante: Josué Rivas
   
